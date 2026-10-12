@@ -4,123 +4,192 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f3ef" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="머니브리핑">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <title>머니 브리핑</title>
 <style>
 :root{
-  --bg:#f6f6f3; --card:#ffffff; --ink:#16181d; --sub:#5d6370; --mute:#9aa0aa; --line:#e6e6e0;
-  --focal:#1f7a54; --focal-soft:#e3f2ea; --chip:#efefea; --warn:#b5462f;
-  --r:14px;
+  --bg:#f4f3ef; --surface:#ffffff; --surface2:#f8f7f4; --ink:#121417; --sub:#5b616b; --mute:#9298a2; --line:#e7e5df;
+  --accent:#0f8a5f; --accent-ink:#ffffff; --up:#d7263d; --down:#2f6fde;
+  --shadow:0 1px 2px rgba(18,20,23,.04),0 4px 14px rgba(18,20,23,.05);
+  --r:16px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f1115; --card:#181b21; --ink:#eceef2; --sub:#a4aab5; --mute:#6b717c; --line:#262a32;
-  --focal:#4cc28c; --focal-soft:#173327; --chip:#22262e; --warn:#ef8a6f;
+  --bg:#0d0f12; --surface:#16191e; --surface2:#1c2026; --ink:#eef0f3; --sub:#a3a9b3; --mute:#6c727c; --line:#252a31;
+  --accent:#3ccf91; --accent-ink:#06281a; --up:#ff5a6a; --down:#5b9bff; --shadow:none;
 }}
 :root[data-theme="dark"]{
-  --bg:#0f1115; --card:#181b21; --ink:#eceef2; --sub:#a4aab5; --mute:#6b717c; --line:#262a32;
-  --focal:#4cc28c; --focal-soft:#173327; --chip:#22262e; --warn:#ef8a6f;
+  --bg:#0d0f12; --surface:#16191e; --surface2:#1c2026; --ink:#eef0f3; --sub:#a3a9b3; --mute:#6c727c; --line:#252a31;
+  --accent:#3ccf91; --accent-ink:#06281a; --up:#ff5a6a; --down:#5b9bff; --shadow:none;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink)}
-body{font:15px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif;
-  word-break:keep-all;overflow-wrap:anywhere;padding-bottom:env(safe-area-inset-bottom)}
-button{font:inherit;color:inherit}
+body{font:15px/1.55 "Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
+  letter-spacing:-.01em;word-break:keep-all;overflow-wrap:anywhere;padding-bottom:calc(24px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+.num{font-variant-numeric:tabular-nums}
 .wrap{max-width:640px;margin:0 auto;padding:0 16px}
-header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + env(safe-area-inset-top)) 0 0}
-.top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.top h1{font-size:20px;margin:0;letter-spacing:-.3px}
-.top .meta{font-size:12px;color:var(--mute)}
-.daynav{display:flex;align-items:center;gap:6px;margin:8px 0 10px}
-.daynav button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font-size:13px}
-.daynav button[disabled]{opacity:.35}
-.daynav .d{font-weight:600;font-size:15px;flex:1;text-align:center}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--chip);border-radius:10px;padding:3px}
-.tabs button{border:0;background:transparent;padding:7px 0;border-radius:8px;font-size:14px;color:var(--sub)}
-.tabs button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 10px;scrollbar-width:none}
+
+header{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  -webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);
+  padding-top:calc(8px + env(safe-area-inset-top));border-bottom:1px solid transparent}
+header.scrolled{border-bottom-color:var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:40px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px;letter-spacing:-.02em}
+.brand i{width:22px;height:22px;border-radius:7px;background:var(--accent);display:grid;place-items:center}
+.brand i svg{width:14px;height:14px}
+.daynav{display:flex;align-items:center;gap:2px;font-size:14px;font-weight:600}
+.daynav button{border:0;background:transparent;width:30px;height:30px;border-radius:9px;color:var(--sub);font-size:18px;line-height:1}
+.daynav button:active{background:var(--surface2)}
+.daynav button[disabled]{opacity:.25}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:6px 0 10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:3px}
+.tabs button{border:0;background:transparent;padding:8px 0;border-radius:9px;font-size:14px;font-weight:500;color:var(--sub)}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:var(--shadow)}
+
+.mk{display:flex;gap:8px;overflow-x:auto;margin:2px -16px 0;padding:2px 16px 4px;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-inline:16px}
+.mk::-webkit-scrollbar{display:none}
+.mk .m{flex:0 0 auto;scroll-snap-align:start;min-width:104px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 11px}
+.mk .l{font-size:11.5px;color:var(--mute);font-weight:500}
+.mk .v{font-size:15px;font-weight:700;margin-top:1px}
+.mk .c{font-size:12px;font-weight:600}
+.up{color:var(--up)} .down{color:var(--down)}
+.note{font-size:11.5px;color:var(--mute);margin:6px 2px 0}
+
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:14px 0 0;box-shadow:var(--shadow)}
+.hero .k{font-size:12.5px;color:var(--sub);display:flex;justify-content:space-between}
+.hero .big{font-size:30px;font-weight:800;letter-spacing:-.04em;margin:2px 0 10px}
+.hero .big small{font-size:15px;font-weight:600;color:var(--sub);margin-left:4px;letter-spacing:-.01em}
+.track{height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
+.track b{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.hero .meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--sub);margin-top:6px}
+.hero .meta strong{color:var(--accent);font-weight:700}
+.expo{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.expo .t{font-size:12.5px;color:var(--sub);margin-bottom:8px;display:flex;justify-content:space-between}
+.stack{display:flex;height:12px;border-radius:99px;overflow:hidden;gap:2px}
+.stack span{display:block;height:100%;cursor:pointer;transition:opacity .15s}
+.stack.dim span{opacity:.25} .stack.dim span.on{opacity:1}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px}
+.legend button{border:0;background:none;padding:0;font-size:12.5px;color:var(--sub);display:flex;align-items:center;gap:5px}
+.legend button i{width:8px;height:8px;border-radius:3px;display:inline-block}
+.legend button b{color:var(--ink);font-weight:600}
+.legend button.on{color:var(--ink);font-weight:700}
+
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:22px 2px 8px}
+.sec h2{font-size:16px;margin:0;letter-spacing:-.02em}
+.sec span{font-size:12.5px;color:var(--mute)}
+.chips{display:flex;gap:6px;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;border:0;background:var(--chip);border-radius:999px;padding:5px 11px;font-size:13px;color:var(--sub);white-space:nowrap}
-.chip b{font-weight:600;color:var(--ink);margin-left:3px}
-.chip[aria-pressed="true"]{background:var(--focal);color:#fff}
-.chip[aria-pressed="true"] b{color:#fff}
-.summary{background:var(--card);border-radius:var(--r);padding:14px;margin:4px 0 12px;border:1px solid var(--line)}
-.summary .big{font-size:26px;font-weight:700;letter-spacing:-.5px}
-.summary .big em{font-style:normal;color:var(--focal)}
-.summary .row{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:2px}
-.list{display:flex;flex-direction:column;gap:10px;padding-bottom:28px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;text-align:left;width:100%;cursor:pointer}
-.card .src{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--mute);margin-bottom:4px}
-.card .src .lbl{color:var(--sub)}
-.card h3{font-size:16px;line-height:1.4;margin:0 0 4px;letter-spacing:-.2px}
-.card p{margin:0;color:var(--sub);font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.card.open p{-webkit-line-clamp:unset}
-.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.tag{font-size:11.5px;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--sub)}
-.tag.mine{background:var(--focal-soft);color:var(--focal);font-weight:600}
-.more{display:none;margin-top:10px}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 11px;font-size:13px;color:var(--sub);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.chip i{width:7px;height:7px;border-radius:50%}
+.chip b{font-weight:600;color:var(--mute);font-size:12px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] b{color:var(--bg);opacity:.7}
+
+.list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px 13px 17px;box-shadow:var(--shadow);cursor:pointer;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--tc,var(--line))}
+.card .src{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);margin-bottom:5px}
+.card .src .s{color:var(--sub);font-weight:600}
+.card .src .rel{margin-left:auto;display:flex;align-items:center;gap:5px;color:var(--sub);font-weight:600}
+.card .src .rel em{display:block;width:34px;height:4px;border-radius:9px;background:var(--surface2);overflow:hidden;font-style:normal}
+.card .src .rel em b{display:block;height:100%;background:var(--accent);border-radius:9px}
+.card h3{font-size:16px;line-height:1.42;margin:0;letter-spacing:-.025em;font-weight:700}
+.card p{margin:5px 0 0;color:var(--sub);font-size:14px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.tag{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:7px;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent)}
+.tag.other{color:var(--mute);background:var(--surface2);font-weight:500}
+.more{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
 .card.open .more{display:block}
-.more a{display:inline-block;font-size:13px;color:var(--focal);text-decoration:none;font-weight:600}
-.more .hold{font-size:12.5px;color:var(--sub);margin-bottom:8px}
-.pts{margin:0 0 10px;padding-left:16px;font-size:14px;color:var(--ink)}
-.pts li{margin:3px 0}
-.empty{color:var(--mute);text-align:center;padding:40px 0;font-size:14px}
-.sect{font-size:13px;color:var(--mute);margin:14px 2px 6px;font-weight:600}
-.ev{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.ev .stars{color:var(--focal);font-size:12px;white-space:nowrap;min-width:44px}
-.ev .nm{font-size:14.5px}
-.lock{max-width:340px;margin:22vh auto 0;text-align:center}
-.lock input{width:100%;font-size:16px;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);margin:14px 0 8px}
-.lock button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--focal);color:#fff;font-weight:600;font-size:15px}
-.lock .err{color:var(--warn);font-size:13px;min-height:18px}
+.card.open p{-webkit-line-clamp:unset}
+.pts{margin:0 0 12px;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.pts li{position:relative;padding-left:14px;font-size:14px;line-height:1.5}
+.pts li::before{content:"";position:absolute;left:2px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--tc,var(--accent))}
+.hold{font-size:12.5px;color:var(--sub);margin-bottom:10px;line-height:1.6}
+.hold b{color:var(--ink);font-weight:600}
+.go{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:var(--accent);text-decoration:none;padding:7px 12px;border-radius:9px;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.foldbtn{width:100%;margin-top:10px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px;font-size:13.5px;font-weight:600;color:var(--sub)}
+.empty{color:var(--mute);text-align:center;padding:48px 0;font-size:14px}
+
+.day{margin-top:18px}
+.day .dh{display:flex;align-items:center;gap:8px;margin:0 2px 8px;font-size:14px;font-weight:700}
+.day .dd{font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--surface2);color:var(--sub);border:1px solid var(--line)}
+.day .dd.today{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.ev{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:7px}
+.ev .imp{display:flex;gap:2px;padding-top:7px}
+.ev .imp i{width:5px;height:5px;border-radius:50%;background:var(--line)}
+.ev .imp i.on{background:var(--accent)}
+.ev .nm{font-size:14.5px;font-weight:600;line-height:1.45}
+
+.lock{max-width:340px;margin:24vh auto 0;text-align:center}
+.lock .logo{width:56px;height:56px;border-radius:16px;background:var(--accent);display:grid;place-items:center;margin:0 auto 14px}
+.lock input{width:100%;font-size:16px;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin:18px 0 8px;outline:none}
+.lock input:focus{border-color:var(--accent)}
+.lock button{width:100%;padding:13px;border:0;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:15px}
+.lock .err{color:var(--up);font-size:13px;min-height:20px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute"><symbol id="mark" viewBox="0 0 16 16"><path d="M2 12 L6 7.5 L9 9.5 L14 3.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>
 <div id="lock" class="lock wrap" hidden>
-  <h1 style="font-size:20px;margin:0">머니 브리핑</h1>
-  <div style="color:var(--sub);font-size:14px;margin-top:6px">처음 한 번만 비밀번호를 넣으면 이 기기에서 기억합니다.</div>
+  <div class="logo"><svg width="28" height="28"><use href="#mark"/></svg></div>
+  <div style="font-size:20px;font-weight:800;letter-spacing:-.03em">머니 브리핑</div>
+  <div style="color:var(--sub);font-size:14px;margin-top:4px">처음 한 번만 비밀번호를 넣으면 이 기기에서 기억합니다</div>
   <form id="lockForm"><input id="pw" type="password" autocomplete="current-password" placeholder="비밀번호"><div class="err" id="err"></div><button type="submit">열기</button></form>
 </div>
 <div id="app" hidden>
-  <header><div class="wrap">
-    <div class="top"><h1>머니 브리핑</h1><span class="meta" id="gen"></span></div>
-    <div class="daynav"><button id="prev" aria-label="이전 날">‹ 어제</button><span class="d" id="day"></span><button id="next" aria-label="다음 날">내일 ›</button></div>
+  <header id="hdr"><div class="wrap">
+    <div class="bar">
+      <div class="brand"><i><svg><use href="#mark"/></svg></i>머니 브리핑</div>
+      <div class="daynav"><button id="prev" aria-label="이전 날">‹</button><span id="day" class="num"></span><button id="next" aria-label="다음 날">›</button></div>
+    </div>
     <div class="tabs" role="tablist">
       <button role="tab" data-tab="mine" aria-selected="true">내 종목</button>
       <button role="tab" data-tab="all" aria-selected="false">전체 이슈</button>
       <button role="tab" data-tab="cal" aria-selected="false">일정</button>
     </div>
-    <div class="chips" id="chips"></div>
   </div></header>
   <main class="wrap" id="main"></main>
 </div>
 <script>
 (() => {
-  const KEY = 'moneybrief.pw.v1';
-  let D = null, state = {tab: 'mine', day: null, theme: null};
+  const KEY = 'moneybrief.pw.v1', PAGE = 8;
+  // 테마 색 — 범주가 25개라 선·면으로는 구분이 안 된다 → 칩(연한 배경+진한 글자) 쌍으로 가둔다
+  // 강조색(초록)은 '내 진척'에만 쓴다 → 테마색에서 초록 계열을 뺐다
+  const TC = {'AI':'#8b5cf6','반도체':'#4f46e5','미국지수':'#0ea5e9','커버드콜':'#f59e0b','AI전력':'#ea580c','국내지수':'#db2777',
+    '원자재-금':'#b8860b','희토류':'#8d6e63','자석소재':'#7b5e57','방산':'#5f7d3a','조선':'#00838f','자동차':'#546e7a','배당':'#a16207',
+    '코리아밸류업':'#c2278a','원전':'#f4511e','2차전지':'#65a30d','금리·채권':'#607d8b','환율':'#5c6bc0','유가·에너지':'#ef6c00',
+    '물가':'#ad1457','부동산':'#8d6e63','암호화폐':'#f2a900','빅테크':'#1e88e5','우주':'#3949ab','항공·우주':'#3949ab','로봇':'#00897b',
+    '바이오':'#e53935','지정학':'#78716c','IPO·공모주':'#8e24aa','플랫폼':'#0d9488','중국':'#c62828','인도':'#ff8f00'};
+  const FALLBACK = ['#0c86c9','#7c4dff','#e0960b','#0f9d78','#d6336c','#3457d5','#ef6c00','#00838f'];
+  const tc = t => TC[t] || FALLBACK[[...t].reduce((a,c) => a + c.charCodeAt(0), 0) % FALLBACK.length];
+
+  let D = null, S = {tab:'mine', day:null, theme:null, shown:PAGE};
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const store = {get(){try{return localStorage.getItem(KEY)}catch(e){return null}}, set(v){try{localStorage.setItem(KEY,v)}catch(e){}}, del(){try{localStorage.removeItem(KEY)}catch(e){}}};
+  const won = n => (n/1e8).toFixed(2);
+  const man = n => Math.round(n/1e4).toLocaleString('ko-KR');
+  const TODAY = (() => { const d = new Date(); return new Date(d - d.getTimezoneOffset()*6e4).toISOString().slice(0,10); })();
 
   async function decrypt(enc, pw){
     const b = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
     const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
     const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b(enc.salt), iterations:enc.iter, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['decrypt']);
-    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b(enc.iv)}, key, b(enc.ct));
-    return JSON.parse(new TextDecoder().decode(pt));
+    return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM', iv:b(enc.iv)}, key, b(enc.ct))));
   }
-
   async function load(){
-    // 로컬 미리보기는 평문 data.json, 배포본은 암호화본
     try { const r = await fetch('data.json', {cache:'no-store'}); if (r.ok) return start(await r.json()); } catch(e){}
     const enc = await (await fetch('data.enc.json', {cache:'no-store'})).json();
     const saved = store.get();
     if (saved){ try { return start(await decrypt(enc, saved)); } catch(e){ store.del(); } }
-    $('#lock').hidden = false;
+    $('#lock').hidden = false; $('#pw').focus();
     $('#lockForm').onsubmit = async ev => {
       ev.preventDefault(); $('#err').textContent = '';
       try { const pw = $('#pw').value; const d = await decrypt(enc, pw); store.set(pw); $('#lock').hidden = true; start(d); }
@@ -128,73 +197,99 @@ header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(10px + 
     };
   }
 
-  const exposure = () => Object.fromEntries(D.themes.map(t => [t.name, t.pct]));
+  const expo = () => Object.fromEntries(D.themes.map(t => [t.name, t.pct]));
   const days = () => [...new Set(D.issues.map(i => i.date))].sort().reverse();
-  const fmtDay = d => { const t = new Date(d + 'T00:00:00'); const w = '일월화수목금토'[t.getDay()];
-    const today = new Date().toISOString().slice(0,10); return (d === today ? '오늘 · ' : '') + `${t.getMonth()+1}월 ${t.getDate()}일 (${w})`; };
-  const won = n => (n/1e8).toFixed(2) + '억';
+  const fmtDay = d => { const t = new Date(d + 'T00:00:00'); return `${t.getMonth()+1}월 ${t.getDate()}일 ${'일월화수목금토'[t.getDay()]}`; };
+  const dday = d => { const n = Math.round((new Date(d) - new Date(TODAY)) / 864e5); return n === 0 ? '오늘' : n === 1 ? '내일' : `D-${n}`; };
 
   function start(data){
-    D = data; $('#app').hidden = false;
-    $('#gen').textContent = '갱신 ' + D.generated_at.slice(5,16).replace('T',' ');
-    state.day = days()[0];
-    document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { state.tab = b.dataset.tab; state.theme = null; render(); });
+    D = data; $('#app').hidden = false; S.day = days()[0];
+    document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { S.tab = b.dataset.tab; S.theme = null; S.shown = PAGE; render(); window.scrollTo(0,0); });
     $('#prev').onclick = () => move(1); $('#next').onclick = () => move(-1);
+    addEventListener('scroll', () => $('#hdr').classList.toggle('scrolled', scrollY > 4), {passive:true});
+    window.pickTheme = t => { S.theme = (S.theme === t ? null : t); S.shown = PAGE; render(); };   // 재클릭 = 해제
+    window.showMore = () => { S.shown += PAGE * 2; render(); };
     render();
   }
-  function move(step){ const ds = days(); const i = ds.indexOf(state.day) + step; if (i >= 0 && i < ds.length){ state.day = ds[i]; render(); window.scrollTo(0,0); } }
+  function move(step){ const ds = days(), i = ds.indexOf(S.day) + step; if (i >= 0 && i < ds.length){ S.day = ds[i]; S.theme = null; S.shown = PAGE; render(); window.scrollTo(0,0); } }
 
   function render(){
-    document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === state.tab));
-    const ds = days(), i = ds.indexOf(state.day);
-    $('#day').textContent = state.tab === 'cal' ? '앞으로 2주' : fmtDay(state.day);
-    $('#prev').disabled = state.tab === 'cal' || i >= ds.length - 1;
-    $('#next').disabled = state.tab === 'cal' || i <= 0;
-    if (state.tab === 'cal') return renderCal();
-    const exp = exposure();
-    let items = D.issues.filter(x => x.date === state.day);
-    if (state.tab === 'mine') items = items.filter(x => x.score > 0);
-    const themeCount = {}; items.forEach(x => x.themes.forEach(t => themeCount[t] = (themeCount[t]||0) + 1));
-    const themes = state.tab === 'mine'
-      ? D.themes.map(t => t.name).filter(t => themeCount[t])
-      : D.all_themes.filter(t => themeCount[t]).sort((a,b) => themeCount[b] - themeCount[a]);
-    $('#chips').innerHTML = [`<button class="chip" data-t="" aria-pressed="${!state.theme}">전체<b>${items.length}</b></button>`]
-      .concat(themes.map(t => `<button class="chip" data-t="${esc(t)}" aria-pressed="${state.theme===t}">${esc(t)}${exp[t] ? ` · ${Math.round(exp[t])}%` : ''}<b>${themeCount[t]}</b></button>`)).join('');
-    $('#chips').querySelectorAll('.chip').forEach(c => c.onclick = () => { state.theme = c.dataset.t || null; render(); });
-    if (state.theme) items = items.filter(x => x.themes.includes(state.theme));
-    items.sort((a,b) => state.tab === 'mine' ? b.score - a.score : (b.kind === 'letter') - (a.kind === 'letter') || b.score - a.score);
-    let head = '';
-    if (state.tab === 'mine' && !state.theme && i === 0 && D.asset && D.asset.mine){
-      const top = D.themes.slice(0,3).map(t => `${esc(t.name)} ${Math.round(t.pct)}%`).join(' · ');
-      const a = D.asset;
-      head = `<div class="summary"><div class="row"><span>${esc(a.label_mine)} (${esc(a.date.slice(5))})</span><span>${esc(a.label_total)} ${won(a.total)}</span></div>
-        <div class="big">${won(a.mine)}${a.goal ? ` <em>${(a.mine / a.goal * 100).toFixed(1)}%</em>` : ''}</div>
-        <div class="row"><span>${a.goal ? `${esc(a.goal_label)} · ` : ''}많이 든 테마 ${top}</span></div></div>`;
-    }
-    $('#main').innerHTML = head + (items.length ? `<div class="list">${items.map(card).join('')}</div>` : `<div class="empty">이 날은 ${state.tab === 'mine' ? '내 종목과 연결된 ' : ''}이슈가 없습니다</div>`);
-    $('#main').querySelectorAll('.card').forEach(c => c.onclick = e => { if (e.target.closest('a')) return; c.classList.toggle('open'); });
+    document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === S.tab));
+    const ds = days(), i = ds.indexOf(S.day), cal = S.tab === 'cal';
+    $('#day').textContent = cal ? '앞으로 2주' : fmtDay(S.day);
+    $('#prev').disabled = cal || i >= ds.length - 1; $('#next').disabled = cal || i <= 0;
+    $('#main').innerHTML = cal ? calendar() : feed(i === 0);
+    document.querySelectorAll('.card').forEach(c => c.onclick = e => { if (!e.target.closest('a')) c.classList.toggle('open'); });
   }
 
-  function card(x){
-    const exp = exposure();
-    const holds = x.themes.filter(t => exp[t]).flatMap(t => (D.themes.find(z => z.name === t)?.holdings || []).slice(0,3).map(h => h.name));
-    const uniq = [...new Set(holds)].slice(0,4);
-    return `<div class="card" role="button" tabindex="0">
-      <div class="src"><span>${esc(x.source)}</span>${x.label ? `<span class="lbl">· ${esc(x.label)}</span>` : ''}${x.time ? `<span>· ${esc(x.time)}</span>` : ''}</div>
+  function markets(){
+    const m = D.markets; if (!m || !(m.items || []).length) return '';
+    return `<div class="mk">${m.items.map(x => `<div class="m"><div class="l">${esc(x.label)}</div><div class="v num">${esc(x.value)}</div>
+      <div class="c num ${x.dir}">${x.dir === 'up' ? '▲' : '▼'} ${esc(x.chg.replace(/^[+-]/,''))}</div></div>`).join('')}</div>
+      <div class="note">${esc(m.basis)} · 순살브리핑</div>`;
+  }
+
+  function hero(){
+    const a = D.asset;
+    if (!a || !a.mine) return '';
+    const pct = a.goal ? Math.min(100, a.mine / a.goal * 100) : 0;
+    const top = D.themes.slice(0, 6);
+    // 테마는 겹친다(한 종목이 AI·커버드콜 둘 다) → 막대는 노출 비율의 상대 크기로 그린다
+    const sum = top.reduce((s,t) => s + t.pct, 0) || 1;
+    return `<div class="hero">
+      <div class="k"><span>${esc(a.label_mine)}</span><span class="num">${esc(a.label_total)} ${won(a.total)}억</span></div>
+      <div class="big num">${won(a.mine)}<small>억</small></div>
+      ${a.goal ? `<div class="track"><b style="width:${pct.toFixed(1)}%"></b></div>
+      <div class="meta num"><span>${esc(a.goal_label)} <strong>${pct.toFixed(1)}%</strong></span><span>남은 ${man(a.goal - a.mine)}만원</span></div>` : ''}
+      <div class="expo"><div class="t"><span>내 포트폴리오가 걸린 테마</span><span>누르면 이슈 필터</span></div>
+        <div class="stack${S.theme ? ' dim' : ''}">${top.map(t => `<span class="${S.theme === t.name ? 'on' : ''}" style="flex:${t.pct/sum};background:${tc(t.name)}" onclick="pickTheme('${esc(t.name)}')"></span>`).join('')}</div>
+        <div class="legend">${top.map(t => `<button class="${S.theme === t.name ? 'on' : ''}" onclick="pickTheme('${esc(t.name)}')"><i style="background:${tc(t.name)}"></i>${esc(t.name)} <b class="num">${Math.round(t.pct)}%</b></button>`).join('')}</div>
+      </div></div>`;
+  }
+
+  function feed(isLatest){
+    const ex = expo(), mine = S.tab === 'mine';
+    let items = D.issues.filter(x => x.date === S.day);
+    if (mine) items = items.filter(x => x.score > 0);
+    const cnt = {}; items.forEach(x => x.themes.forEach(t => cnt[t] = (cnt[t]||0) + 1));
+    const themes = mine ? D.themes.map(t => t.name).filter(t => cnt[t]) : Object.keys(cnt).sort((a,b) => cnt[b] - cnt[a]);
+    let list = S.theme ? items.filter(x => x.themes.includes(S.theme)) : items;
+    list = [...list].sort((a,b) => mine ? b.score - a.score : (b.kind === 'letter') - (a.kind === 'letter') || b.score - a.score);
+    const maxScore = Math.max(1, ...items.map(x => x.score));
+    const chips = `<div class="chips"><button class="chip" aria-pressed="${!S.theme}" onclick="pickTheme(null)">전체 <b class="num">${items.length}</b></button>${
+      themes.map(t => `<button class="chip" aria-pressed="${S.theme === t}" onclick="pickTheme('${esc(t)}')"><i style="background:${tc(t)}"></i>${esc(t)} <b class="num">${cnt[t]}</b></button>`).join('')}</div>`;
+    const head = (mine && isLatest) ? markets() + hero() : '';
+    const title = mine ? '내 종목과 연결된 이슈' : '이 날의 경제 이슈';
+    const body = list.length
+      ? `<div class="list">${list.slice(0, S.shown).map(x => card(x, ex, maxScore)).join('')}</div>` +
+        (list.length > S.shown ? `<button class="foldbtn" onclick="showMore()">더 보기 · ${list.length - S.shown}건</button>` : '')
+      : `<div class="empty">${S.theme ? `「${esc(S.theme)}」 이슈가 이 날은 없습니다` : '이 날은 이슈가 없습니다'}</div>`;
+    return head + `<div class="sec"><h2>${title}</h2><span class="num">${list.length}건</span></div>` + chips + body;
+  }
+
+  function card(x, ex, maxScore){
+    const lead = x.themes.find(t => ex[t]) || x.themes[0];
+    const holds = [...new Set(x.themes.filter(t => ex[t]).flatMap(t => ((D.themes.find(z => z.name === t) || {}).holdings || []).slice(0,3).map(h => h.name)))].slice(0,4);
+    const tags = x.themes.slice(0,4).map(t => ex[t] ? `<span class="tag" style="--c:${tc(t)}">${esc(t)}</span>` : `<span class="tag other">${esc(t)}</span>`).join('');
+    const rel = x.score > 0 ? `<span class="rel num">내 노출 ${Math.round(x.score)}%<em><b style="width:${Math.min(100, x.score/maxScore*100)}%"></b></em></span>` : '';
+    return `<article class="card" style="--tc:${lead ? tc(lead) : 'var(--line)'}">
+      <div class="src"><span class="s">${esc(x.source)}</span>${x.label ? `<span>· ${esc(x.label)}</span>` : ''}${x.time ? `<span class="num">· ${esc(x.time)}</span>` : ''}${rel}</div>
       <h3>${esc(x.title)}</h3>${x.summary ? `<p>${esc(x.summary)}</p>` : ''}
-      <div class="tags">${x.themes.slice(0,4).map(t => `<span class="tag${exp[t] ? ' mine' : ''}">${esc(t)}</span>`).join('')}</div>
-      <div class="more">${(x.points||[]).length ? `<ul class="pts">${x.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}${uniq.length ? `<div class="hold">내 보유: ${uniq.map(esc).join(', ')}</div>` : ''}${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">원문 보기 ↗</a>` : ''}</div>
-    </div>`;
+      ${tags ? `<div class="tags">${tags}</div>` : ''}
+      <div class="more">${(x.points||[]).length ? `<ul class="pts">${x.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}
+        ${holds.length ? `<div class="hold">관련 내 보유 · <b>${holds.map(esc).join(' · ')}</b></div>` : ''}
+        ${x.url ? `<a class="go" href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">원문 보기 ↗</a>` : ''}</div>
+    </article>`;
   }
 
-  function renderCal(){
-    const exp = exposure();
-    $('#chips').innerHTML = '';
-    const by = {}; D.calendar.forEach(e => (by[e.date] = by[e.date] || []).push(e));
-    const html = Object.keys(by).sort().map(d => `<div class="sect">${fmtDay(d)}</div>` + by[d].map(e =>
-      `<div class="ev"><span class="stars">${'★'.repeat(Math.min(e.importance,5))}</span><div><div class="nm">${esc(e.name)}</div>
-       <div class="tags">${e.themes.slice(0,3).map(t => `<span class="tag${exp[t] ? ' mine' : ''}">${esc(t)}</span>`).join('')}</div></div></div>`).join('')).join('');
-    $('#main').innerHTML = html ? `<div class="list" style="gap:6px">${html}</div>` : '<div class="empty">예정된 일정이 없습니다</div>';
+  function calendar(){
+    const ex = expo(), by = {};
+    D.calendar.forEach(e => (by[e.date] = by[e.date] || []).push(e));
+    const html = Object.keys(by).sort().map(d => `<div class="day"><div class="dh"><span class="dd${d === TODAY ? ' today' : ''}">${dday(d)}</span>${fmtDay(d)}</div>` +
+      by[d].map(e => `<div class="ev"><span class="imp">${[1,2,3,4,5].map(k => `<i class="${k <= e.importance ? 'on' : ''}"></i>`).join('')}</span>
+        <div style="flex:1"><div class="nm">${esc(e.name)}</div>
+        <div class="tags">${e.themes.slice(0,3).map(t => ex[t] ? `<span class="tag" style="--c:${tc(t)}">${esc(t)}</span>` : `<span class="tag other">${esc(t)}</span>`).join('')}</div></div></div>`).join('') + '</div>').join('');
+    return `<div class="sec"><h2>다가오는 일정</h2><span>점 = 중요도</span></div>` + (html || '<div class="empty">예정된 일정이 없습니다</div>');
   }
 
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
