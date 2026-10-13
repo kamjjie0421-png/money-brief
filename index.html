@@ -271,7 +271,7 @@ header.scrolled{border-bottom-color:var(--line)}
     const lead = x.themes.find(t => ex[t]) || x.themes[0];
     const holds = [...new Set(x.themes.filter(t => ex[t]).flatMap(t => ((D.themes.find(z => z.name === t) || {}).holdings || []).slice(0,3).map(h => h.name)))].slice(0,4);
     const tags = x.themes.slice(0,4).map(t => ex[t] ? `<span class="tag" style="--c:${tc(t)}">${esc(t)}</span>` : `<span class="tag other">${esc(t)}</span>`).join('');
-    const rel = x.score > 0 ? `<span class="rel num">내 노출 ${Math.round(x.score)}%<em><b style="width:${Math.min(100, x.score/maxScore*100)}%"></b></em></span>` : '';
+    const rel = x.score > 0 ? `<span class="rel num">내 자산 ${Math.round(x.score)}%<em><b style="width:${Math.min(100, x.score)}%"></b></em></span>` : '';
     return `<article class="card" style="--tc:${lead ? tc(lead) : 'var(--line)'}">
       <div class="src"><span class="s">${esc(x.source)}</span>${x.label ? `<span>· ${esc(x.label)}</span>` : ''}${x.time ? `<span class="num">· ${esc(x.time)}</span>` : ''}${rel}</div>
       <h3>${esc(x.title)}</h3>${x.summary ? `<p>${esc(x.summary)}</p>` : ''}
