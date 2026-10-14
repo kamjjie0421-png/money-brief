@@ -148,6 +148,9 @@ header.scrolled{border-bottom-color:var(--line)}
 .evb .dd.today{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .expbar{height:6px;border-radius:9px;background:var(--surface2);overflow:hidden;margin-top:8px}
 .expbar b{display:block;height:100%;background:var(--ink);opacity:.75;border-radius:9px}
+.seed .r{align-items:center}
+.seed .ck{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 9px;font-size:12px;font-weight:700;color:var(--sub)}
+.seed .ck.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .lock{max-width:340px;margin:24vh auto 0;text-align:center}
 .lock .logo{width:56px;height:56px;border-radius:16px;background:var(--accent);display:grid;place-items:center;margin:0 auto 14px}
 .lock input{width:100%;font-size:16px;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin:18px 0 8px;outline:none}
@@ -322,7 +325,24 @@ header.scrolled{border-bottom-color:var(--line)}
     const cash = (C.cash || []).length ? `<div class="box"><div class="hd"><b>계좌별 예수금</b><span class="rl num">${esc(C.as_of.slice(5))} 기준</span></div>
         <div class="rows">${C.cash.map(c => `<div class="r"><span>${esc(c.name)}<em>${esc(c.role)}${c.verified ? '' : ' · 계좌 추정'}</em></span><span class="num">${won2(c.amount)}</span></div>`).join('')}</div></div>` : '';
     const buckets = `<div class="box"><div class="hd"><b>내가 정한 계좌 용도</b></div><div class="rows">${C.rules.buckets.map(b => `<div class="r" style="display:block"><b style="font-size:13.5px">${esc(b.label)}</b><div class="rl" style="margin-top:2px">${esc(b.role)} → ${esc(b.action)}</div></div>`).join('')}</div></div>`;
-    return guide + `<div class="sec"><h2>이번 주 판단할 이벤트</h2><span>${(C.events||[]).length}건</span></div>` + (evs || '<div class="empty">앞으로 7일 점검표가 없습니다</div>')
+    const sd = C.seed;
+    let seedBox = '';
+    if (sd && sd.items){
+      // 자동 확인이 안 되는 항목(ISA·연금)은 이 기기에 체크를 남긴다 — 월이 바뀌면 키가 달라져 초기화
+      const key = 'moneybrief.seed.' + sd.month, mk = (() => { try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) { return {}; } })();
+      window.toggleSeed = n => { mk[n] = !mk[n]; try { localStorage.setItem(key, JSON.stringify(mk)); } catch(e){} render(); };
+      const isDone = it => it.status === 'done' || (it.status !== 'done' && mk[it.name]);
+      const doneAmt = sd.items.filter(isDone).reduce((a, it) => a + it.plan, 0);
+      const monthEnd = new Date(+sd.month.slice(0,4), +sd.month.slice(5,7), 0).getDate();
+      const left = monthEnd - new Date().getDate();
+      seedBox = `<div class="box seed"><div class="hd"><b>이번 달 내 시드 ${won2(sd.total)}</b><span class="st ${doneAmt >= sd.total ? 'ok' : 'info'}">${won2(doneAmt)} 확인</span></div>
+        <div class="rl">${+sd.month.slice(5)}월 · 월말 납입 기준 · 말일까지 ${left}일</div>
+        <div class="track" style="margin-top:10px"><b style="width:${Math.min(100, doneAmt/sd.total*100)}%"></b></div>
+        <div class="rows">${sd.items.map(it => `<div class="r"><span>${esc(it.name)} <b class="num" style="font-weight:600">${won2(it.plan)}</b><em>${it.status === 'done' ? esc(it.evidence) : it.status === 'manual' ? '가계부에 안 남는 계좌 · 직접 체크' : '아직 출금 기록 없음'}</em></span>
+          ${it.status === 'done' ? '<span class="st ok">자동 확인</span>' : it.status === 'manual' ? `<button class="ck${mk[it.name] ? ' on' : ''}" onclick="toggleSeed('${esc(it.name)}')">${mk[it.name] ? '넣음' : '체크'}</button>` : '<span class="st info">대기</span>'}</div>`).join('')}</div>
+        <div class="rl" style="margin-top:8px">배분 출처 · ${esc(sd.source)}</div></div>`;
+    }
+    return guide + `<div class="sec"><h2>이번 달 시드 배분</h2><span></span></div>` + seedBox + `<div class="sec"><h2>이번 주 판단할 이벤트</h2><span>${(C.events||[]).length}건</span></div>` + (evs || '<div class="empty">앞으로 7일 점검표가 없습니다</div>')
       + `<div class="sec"><h2>내 규칙 점검</h2><span></span></div>` + rules
       + `<div class="sec"><h2>예수금과 계좌 용도</h2><span></span></div>` + cash + buckets;
   }
