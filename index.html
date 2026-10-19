@@ -320,7 +320,7 @@ header.scrolled{border-bottom-color:var(--line)}
     const rules = C.rules.items.map(r => `<div class="box"><div class="hd"><b>${esc(r.title)}</b><span class="st ${r.state === 'breach' ? 'todo' : r.state}">${r.state === 'ok' ? '규칙 안' : r.state === 'breach' ? '규칙 벗어남' : '확인'}</span></div>
         <div class="rl">${esc(r.rule)}</div>
         <div class="vl num">${esc(r.value)}${r.gap ? `<small>${esc(r.gap)}</small>` : ''}</div>
-        ${(r.list || []).length ? `<div class="rows">${r.list.map(x => `<div class="r"><span>${esc(x.name)}<em>${x.reasons.map(esc).join(' · ')}</em></span><span class="num ${x.ret < 0 ? 'down' : 'up'}">${x.ret > 0 ? '+' : ''}${x.ret}%</span></div>`).join('')}</div>` : ''}
+        ${(r.list || []).length ? `<div class="rows">${r.list.map(x => `<div class="r"><span>${esc(x.name)}<em>${x.reasons.map(esc).join(' · ')}</em></span>${x.ret == null ? '' : `<span class="num ${x.ret < 0 ? 'down' : 'up'}">${x.ret > 0 ? '+' : ''}${x.ret}%</span>`}</div>`).join('')}</div>` : ''}
         <div class="rl" style="margin-top:8px">규칙 출처 · ${esc(r.source)}</div></div>`).join('');
     const cash = (C.cash || []).length ? `<div class="box"><div class="hd"><b>계좌별 예수금</b><span class="rl num">${esc(C.as_of.slice(5))} 기준</span></div>
         <div class="rows">${C.cash.map(c => `<div class="r"><span>${esc(c.name)}<em>${esc(c.role)}${c.verified ? '' : ' · 계좌 추정'}</em></span><span class="num">${won2(c.amount)}</span></div>`).join('')}</div></div>` : '';
