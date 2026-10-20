@@ -186,6 +186,25 @@ header.scrolled{border-bottom-color:var(--line)}
 details.more2{margin-top:22px}
 details.more2 summary{list-style:none;cursor:pointer;font-size:14px;font-weight:700;color:var(--sub);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 details.more2 summary::-webkit-details-marker{display:none}
+
+/* 오늘 핵심 */
+.dg{display:flex;flex-direction:column;gap:10px}
+.dgc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;box-shadow:var(--shadow);cursor:pointer}
+.dgc .top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dgc .no{width:22px;height:22px;border-radius:7px;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:800;display:grid;place-items:center;flex:0 0 auto}
+.dgc .tp{font-size:12.5px;font-weight:700;color:var(--sub)}
+.dgc .rel2{margin-left:auto;font-size:12px;font-weight:700;color:var(--accent);white-space:nowrap}
+.dgc .rel2.none{color:var(--mute);font-weight:600}
+.dgc h3{font-size:16.5px;line-height:1.42;margin:0;letter-spacing:-.025em;font-weight:800}
+.dgc p{margin:6px 0 0;color:var(--sub);font-size:14px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dgc .why{font-size:13px;margin-top:8px;color:var(--ink);background:var(--surface2);border-radius:9px;padding:7px 10px;line-height:1.5}
+.dgc .src3{font-size:12px;color:var(--mute);margin-top:8px}
+.dgc .more{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.dgc.open .more{display:block}
+.dgc.open p{-webkit-line-clamp:unset}
+.dgc .rl2{display:flex;flex-direction:column;gap:6px;margin:8px 0 10px}
+.dgc .rl2 a{font-size:13.5px;color:var(--ink);text-decoration:none;line-height:1.45}
+.dgc .rl2 a span{color:var(--mute);font-size:12px;margin-left:4px}
 .lock{max-width:340px;margin:24vh auto 0;text-align:center}
 .lock .logo{width:56px;height:56px;border-radius:16px;background:var(--accent);display:grid;place-items:center;margin:0 auto 14px}
 .lock input{width:100%;font-size:16px;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin:18px 0 8px;outline:none}
@@ -322,7 +341,7 @@ details.more2 summary::-webkit-details-marker{display:none}
     const maxScore = Math.max(1, ...items.map(x => x.score));
     const chips = `<div class="chips"><button class="chip" aria-pressed="${!S.theme}" onclick="pickTheme(null)">전체 <b class="num">${items.length}</b></button>${
       themes.map(t => `<button class="chip" aria-pressed="${S.theme === t}" onclick="pickTheme('${esc(t)}')"><i style="background:${tc(t)}"></i>${esc(t)} <b class="num">${cnt[t]}</b></button>`).join('')}</div>`;
-    const head = '';
+    const head = digestBlock(S.day, '이 날 핵심 주제') + (((D.digest||{})[S.day]||[]).length ? '<div style="height:6px"></div>' : '');
     const title = mine ? '내 종목과 연결된 이슈' : '이 날의 경제 이슈';
     const body = list.length
       ? `<div class="list">${list.slice(0, S.shown).map(x => card(x, ex, maxScore)).join('')}</div>` +
@@ -338,7 +357,7 @@ details.more2 summary::-webkit-details-marker{display:none}
     const rel = x.score > 0 ? `<span class="rel num">내 자산 ${Math.round(x.score)}%<em><b style="width:${Math.min(100, x.score)}%"></b></em></span>` : '';
     return `<article class="card" style="--tc:${lead ? tc(lead) : 'var(--line)'}">
       <div class="src"><span class="s">${esc(x.source)}</span>${x.label ? `<span>· ${esc(x.label)}</span>` : ''}${x.time ? `<span class="num">· ${esc(x.time)}</span>` : ''}${rel}</div>
-      <h3>${esc(x.title)}</h3>${x.summary ? `<p>${esc(x.summary)}</p>` : ''}
+      <h3>${esc(x.title)}</h3>${restOf(x.title, x.summary) ? `<p>${esc(restOf(x.title, x.summary))}</p>` : ''}
       ${tags ? `<div class="tags">${tags}</div>` : ''}
       <div class="more">${(x.points||[]).length ? `<ul class="pts">${x.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}
         ${holds.length ? `<div class="hold">관련 내 보유 · <b>${holds.map(esc).join(' · ')}</b></div>` : ''}
@@ -369,6 +388,31 @@ details.more2 summary::-webkit-details-marker{display:none}
     active:'공부하면서 직접 사고파는 계좌', partner_funded:'남자친구와 함께 모으는 돈 · 손익도 같이', unused:'거의 안 쓰는 계좌'};
   const MIXC = {invest:'#4C72B0', cash:'#64B5CD', save:'#55A868', bank:'#937860', pension:'#8172B3', insure:'#CCB974', partner:'#C9C9C9'};
 
+
+  // 오늘 핵심 — 그날 기사를 3~5개 주제로 묶은 것(digest.py). 여러 곳이 다룬 주제 · 내 보유와 겹치는 주제가 위
+  const restOf = (title, summary) => { const t = (title || '').replace(/[.…\s]+$/,''), s0 = summary || ''; if (!t || !s0.startsWith(t.slice(0, Math.min(18, t.length)))) return s0; const r = s0.slice(t.length).replace(/^[\s.…,]+/,''); return r.length > 15 ? r : ''; };
+  function digestBlock(day, title){
+    const list = (D.digest || {})[day] || [];
+    if (!list.length) return '';
+    const ex = expo();
+    const holdOf = c => [...new Set(c.themes.filter(t => ex[t]).flatMap(t => ((D.themes.find(z => z.name === t) || {}).holdings || []).slice(0,2).map(h => h.name)))].slice(0,3);
+    return `<div class="pf-h">${title}</div><div class="pf-s">${fmtDay(day)} 기사 ${D.issues.filter(x => x.date === day).length}건을 주제 ${list.length}개로 묶었어요. 여러 곳이 같이 다룬 순서예요.</div>
+      <div class="dg">${list.map((c, i) => {
+        const hs = holdOf(c);
+        const why = c.score > 0
+          ? `내 투자금의 ${Math.round(c.score)}%와 연결된 이야기예요${hs.length ? ` — ${hs.map(esc).join(' · ')}` : ''}`
+          : '내 보유와 직접 연결은 없어요 — 시장 분위기로 보면 돼요';
+        return `<div class="dgc" onclick="this.classList.toggle('open')">
+          <div class="top"><span class="no">${i + 1}</span><span class="tp">#${esc(c.topic)}</span><span class="rel2${c.score > 0 ? '' : ' none'} num">${c.score > 0 ? '내 자산 ' + Math.round(c.score) + '%' : '보유 무관'}</span></div>
+          <h3>${esc(c.title)}</h3>${restOf(c.title, c.summary) ? `<p>${esc(restOf(c.title, c.summary))}</p>` : ''}
+          <div class="why">${why}</div>
+          <div class="src3">${c.sources.length}곳에서 다룸 · ${c.sources.slice(0,4).map(esc).join(' · ')}${c.sources.length > 4 ? ' 외' : ''}</div>
+          <div class="more">${(c.points || []).length ? `<ul class="pts">${c.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}
+            ${c.related.length ? `<div class="ol" style="font-size:12px;color:var(--mute)">같은 주제 다른 기사</div><div class="rl2">${c.related.map(r => r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${esc(r.title)}<span>${esc(r.source)}</span></a>` : `<div style="font-size:13.5px">${esc(r.title)} <span style="color:var(--mute);font-size:12px">${esc(r.source)}</span></div>`).join('')}</div>` : ''}
+            ${c.url ? `<a class="go" href="${esc(c.url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">대표 기사 원문 ↗</a>` : ''}</div>
+        </div>`; }).join('')}</div>`;
+  }
+
   function assets(){
     const P = D.portfolio, A = D.asset;
     if (!P || !P.mix) return '<div class="empty">자산 데이터가 아직 없습니다</div>';
@@ -376,6 +420,8 @@ details.more2 summary::-webkit-details-marker{display:none}
     const eok = n => { const e = Math.floor(n/1e8), r = Math.round((n - e*1e8)/1e4); return (e ? e + '억 ' : '') + (r ? r.toLocaleString('ko-KR') + '만원' : '원'); };
     const H = P.holdings;
     let out = markets();
+    const latest = Object.keys(D.digest || {}).sort().reverse().find(d => (D.digest[d] || []).length);
+    if (latest) out += digestBlock(latest, latest === TODAY ? '오늘 꼭 알 것' : '최근 꼭 알 것');
 
     // 1. 한 줄 요약
     if (A && A.mine){
