@@ -529,7 +529,19 @@ details.more2 summary::-webkit-details-marker{display:none}
           ${it.status === 'done' ? '<span class="st ok">자동 확인</span>' : it.status === 'manual' ? `<button class="ck${mk[it.name] ? ' on' : ''}" onclick="toggleSeed('${esc(it.name)}')">${mk[it.name] ? '넣음' : '체크'}</button>` : '<span class="st info">대기</span>'}</div>`).join('')}</div>
         <div class="rl" style="margin-top:8px">배분 출처 · ${esc(sd.source)}</div></div>`;
     }
-    return guide + `<div class="sec"><h2>이번 달 시드 배분</h2><span></span></div>` + seedBox + `<div class="sec"><h2>이번 주 판단할 이벤트</h2><span>${(C.events||[]).length}건</span></div>` + (evs || '<div class="empty">앞으로 7일 점검표가 없습니다</div>')
+    const lm = C.limits;
+    let limBox = '';
+    if (lm && lm.accounts){
+      const dleft = Math.round((new Date(lm.deadline) - new Date()) / 864e5);
+      limBox = `<div class="box"><div class="hd"><b>올해 안에 넣어야 끝나는 한도</b><span class="st ${dleft > 45 ? 'info' : 'todo'}">${lm.deadline.slice(5).replace('-','/')}까지 ${dleft}일</span></div>
+        <div class="rows">${lm.accounts.map(a => `<div class="r" style="display:block">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span>${esc(a.name)}<em>${esc(a.kind)}</em></span><span class="num">${won2(a.paid)} / ${won2(a.limit)}</span></div>
+          <div class="track" style="margin-top:6px"><b style="width:${Math.min(100, a.pct)}%"></b></div>
+          <div class="rl num" style="margin-top:4px">남은 ${won2(a.left)}</div></div>`).join('')}</div>
+        <div class="rl" style="margin-top:10px">${esc(lm.plan_nov_dec)}</div>
+        <div class="rl" style="margin-top:8px">${lm.as_of} 확인 · ${esc(lm.source)}</div></div>`;
+    }
+    return guide + `<div class="sec"><h2>이번 달 시드 배분</h2><span></span></div>` + seedBox + `<div class="sec"><h2>올해 납입 한도</h2><span></span></div>` + limBox + `<div class="sec"><h2>이번 주 판단할 이벤트</h2><span>${(C.events||[]).length}건</span></div>` + (evs || '<div class="empty">앞으로 7일 점검표가 없습니다</div>')
       + `<div class="sec"><h2>내 규칙 점검</h2><span></span></div>` + rules
       + `<div class="sec"><h2>예수금과 계좌 용도</h2><span></span></div>` + cash + buckets;
   }
