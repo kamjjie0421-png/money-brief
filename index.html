@@ -49,7 +49,7 @@ header.scrolled{border-bottom-color:var(--line)}
 .daynav button{border:0;background:transparent;width:30px;height:30px;border-radius:9px;color:var(--sub);font-size:18px;line-height:1}
 .daynav button:active{background:var(--surface2)}
 .daynav button[disabled]{opacity:.25}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0 10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:3px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:6px 0 10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:3px}
 .tabs button{border:0;background:transparent;padding:8px 0;border-radius:9px;font-size:14px;font-weight:500;color:var(--sub)}
 .tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:var(--shadow)}
 
@@ -71,6 +71,18 @@ header.scrolled{border-bottom-color:var(--line)}
 .mchart .ml{font-size:12.5px;font-weight:700;fill:var(--ink)}
 .pnote{font-size:12px;color:var(--mute);margin-top:8px;line-height:1.5}
 .pnote.sub{margin:-2px 0 6px 2px;font-size:11.5px}
+.realrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:13.5px;color:var(--sub)}
+.realrow b{font-size:17px;color:var(--ink);font-weight:800}
+.warn{margin-top:12px;padding:12px 14px;border-radius:var(--r);background:color-mix(in srgb,#f59e0b 14%,var(--surface));border:1px solid color-mix(in srgb,#f59e0b 45%,transparent);font-size:13.5px;line-height:1.5}
+.warn b{display:block;margin-bottom:2px}
+.warn span{color:var(--sub)}
+.hd2{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin-bottom:4px}
+.hd2 span{color:var(--sub);font-size:13px}
+.mlist .mr .a{text-align:right}
+.more2.in{margin:12px 0 0;border:0;padding:0}
+.seg{display:inline-flex;gap:2px;margin:14px 2px 0;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:7px;font-size:13.5px;color:var(--sub)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:700;box-shadow:var(--shadow)}
 .hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:14px 0 0;box-shadow:var(--shadow)}
 .hero .k{font-size:12.5px;color:var(--sub);display:flex;justify-content:space-between}
 .hero .big{font-size:30px;font-weight:800;letter-spacing:-.04em;margin:2px 0 10px}
@@ -244,8 +256,7 @@ details.more2 summary::-webkit-details-marker{display:none}
     </div>
     <div class="tabs" role="tablist">
       <button role="tab" data-tab="asset" aria-selected="true">내 자산</button>
-      <button role="tab" data-tab="mine" aria-selected="false">내 종목 이슈</button>
-      <button role="tab" data-tab="all" aria-selected="false">전체 이슈</button>
+      <button role="tab" data-tab="news" aria-selected="false">이슈</button>
       <button role="tab" data-tab="cal" aria-selected="false">일정</button>
     </div>
   </div></header>
@@ -264,7 +275,7 @@ details.more2 summary::-webkit-details-marker{display:none}
   const FALLBACK = ['#0c86c9','#7c4dff','#e0960b','#0f9d78','#d6336c','#3457d5','#ef6c00','#00838f'];
   const tc = t => TC[t] || FALLBACK[[...t].reduce((a,c) => a + c.charCodeAt(0), 0) % FALLBACK.length];
 
-  let D = null, S = {tab:'asset', day:null, theme:null, shown:PAGE};
+  let D = null, S = {tab:'asset', day:null, theme:null, shown:PAGE, mineOnly:false};
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const store = {get(){try{return localStorage.getItem(KEY)}catch(e){return null}}, set(v){try{localStorage.setItem(KEY,v)}catch(e){}}, del(){try{localStorage.removeItem(KEY)}catch(e){}}};
@@ -303,7 +314,8 @@ details.more2 summary::-webkit-details-marker{display:none}
     addEventListener('scroll', () => $('#hdr').classList.toggle('scrolled', scrollY > 4), {passive:true});
     window.pickTheme = t => { S.theme = (S.theme === t ? null : t); S.shown = PAGE; render(); };   // 재클릭 = 해제
     window.showMore = () => { S.shown += PAGE * 2; render(); };
-    window.goIssues = t => { S.tab = 'mine'; S.day = days()[0]; S.theme = t; S.shown = PAGE; render(); window.scrollTo(0,0); };
+    window.setMine = v => { S.mineOnly = v; S.theme = null; S.shown = PAGE; render(); };
+    window.goIssues = t => { S.tab = 'news'; S.mineOnly = true; S.day = days()[0]; S.theme = t; S.shown = PAGE; render(); window.scrollTo(0,0); };
     window.openTheme = t => { S.openTheme = (S.openTheme === t ? null : t); render(); };
     render();
   }
@@ -346,7 +358,7 @@ details.more2 summary::-webkit-details-marker{display:none}
   }
 
   function feed(isLatest){
-    const ex = expo(), mine = S.tab === 'mine';
+    const ex = expo(), mine = S.mineOnly;
     let items = D.issues.filter(x => x.date === S.day);
     if (mine) items = items.filter(x => x.score > 0);
     const cnt = {}; items.forEach(x => x.themes.forEach(t => cnt[t] = (cnt[t]||0) + 1));
@@ -357,12 +369,13 @@ details.more2 summary::-webkit-details-marker{display:none}
     const chips = `<div class="chips"><button class="chip" aria-pressed="${!S.theme}" onclick="pickTheme(null)">전체 <b class="num">${items.length}</b></button>${
       themes.map(t => `<button class="chip" aria-pressed="${S.theme === t}" onclick="pickTheme('${esc(t)}')"><i style="background:${tc(t)}"></i>${esc(t)} <b class="num">${cnt[t]}</b></button>`).join('')}</div>`;
     const head = digestBlock(S.day, '이 날 핵심 주제') + (((D.digest||{})[S.day]||[]).length ? '<div style="height:6px"></div>' : '');
+    const seg = `<div class="seg"><button aria-pressed="${!mine}" onclick="setMine(false)">전체</button><button aria-pressed="${mine}" onclick="setMine(true)">내 종목만</button></div>`;
     const title = mine ? '내 종목과 연결된 이슈' : '이 날의 경제 이슈';
     const body = list.length
       ? `<div class="list">${list.slice(0, S.shown).map(x => card(x, ex, maxScore)).join('')}</div>` +
         (list.length > S.shown ? `<button class="foldbtn" onclick="showMore()">더 보기 · ${list.length - S.shown}건</button>` : '')
       : `<div class="empty">${S.theme ? `「${esc(S.theme)}」 이슈가 이 날은 없습니다` : '이 날은 이슈가 없습니다'}</div>`;
-    return head + `<div class="sec"><h2>${title}</h2><span class="num">${list.length}건</span></div>` + chips + body;
+    return (isLatest ? markets() : '') + head + seg + `<div class="sec"><h2>${title}</h2><span class="num">${list.length}건</span></div>` + chips + body;
   }
 
   function card(x, ex, maxScore){
@@ -399,7 +412,7 @@ details.more2 summary::-webkit-details-marker{display:none}
     '우주':'위성·로켓 등 우주 산업 기업이에요.', '금리·채권':'미국 국채 같은 채권이에요. 금리가 내리면 값이 올라요.',
   };
   // 계좌 용도 — 오너가 정한 용도(portfolio_buckets.json)를 쉬운 말로
-  const ROLE = {core:'오래 들고 갈 돈 · ISA·연금 같은 세금 아끼는 계좌 포함', parking:'쉬는 돈 보관함 · 이자 받으며 대기, 1,000만원은 남겨 두기로 함',
+  const ROLE = {core:'오래 들고 갈 돈 · ISA·연금 같은 세금 아끼는 계좌 포함', parking:'쉬는 돈 보관함 · 이자 받으며 대기',
     active:'공부하면서 직접 사고파는 계좌', partner_funded:'남자친구와 함께 모으는 돈 · 손익도 같이', unused:'거의 안 쓰는 계좌'};
   const MIXC = {invest:'#4C72B0', cash:'#64B5CD', save:'#55A868', bank:'#937860', pension:'#8172B3', insure:'#CCB974', partner:'#C9C9C9'};
 
@@ -432,23 +445,53 @@ details.more2 summary::-webkit-details-marker{display:none}
     const P = D.portfolio, A = D.asset;
     if (!P || !P.mix) return '<div class="empty">자산 데이터가 아직 없습니다</div>';
     const m = n => Math.round(n/1e4).toLocaleString('ko-KR');
-    const eok = n => { const e = Math.floor(n/1e8), r = Math.round((n - e*1e8)/1e4); return (e ? e + '억 ' : '') + (r ? r.toLocaleString('ko-KR') + '만원' : '원'); };
-    const H = P.holdings;
-    let out = markets();
-    const latest = Object.keys(D.digest || {}).sort().reverse().find(d => (D.digest[d] || []).length);
-    if (latest) out += digestBlock(latest, latest === TODAY ? '오늘 꼭 알 것' : '최근 꼭 알 것');
+    const eok = n => { const e = Math.floor(n/1e8), r = Math.round((n - e*1e8)/1e4); return r ? (e ? e + '억 ' : '') + r.toLocaleString('ko-KR') + '만원' : (e ? e + '억원' : '0원'); };
+    const md = d => +d.slice(5,7) + '/' + +d.slice(8,10);
+    const H = P.holdings, C = A && A.cards;
+    let out = '';
 
-    // 1. 한 줄 요약
+    // 1. 내 순자산 — 화면 맨 위 한 장
     if (A && A.mine){
+      const real = C && C.unpaid_total ? A.mine - C.unpaid_total : null;
       const pct = A.goal ? Math.min(100, A.mine / A.goal * 100) : 0;
-      out += `<div class="hero"><div class="k"><span>내 순자산 · 남자친구 맡은 돈 제외</span><span class="num">전체 ${won(A.total)}억</span></div>
+      out += `<div class="hero"><div class="k"><span>내 순자산</span><span class="num">${md(A.date)} 기준</span></div>
         <div class="big num">${won(A.mine)}<small>억</small></div>
         ${A.goal ? `<div class="track"><b style="width:${pct.toFixed(1)}%"></b></div>
         <div class="meta num"><span>${esc(A.goal_label)} <strong>${pct.toFixed(1)}%</strong></span><span>남은 ${m(A.goal - A.mine)}만원</span></div>` : ''}
+        ${real != null ? `<div class="realrow num"><span>나갈 카드값 ${m(C.unpaid_total)}만까지 빼면</span><b>${eok(real)}</b></div>` : ''}
         ${A.partner ? `<div class="pnote num">남자친구 돈 ${m(A.partner)}만${A.partner_principal ? ` (넣은 원금 ${m(A.partner_principal)}만 · ${A.partner - A.partner_principal >= 0 ? '+' : '−'}${m(Math.abs(A.partner - A.partner_principal))}만)` : ''} · 합치면 ${eok(A.mine + A.partner)} — 목표엔 넣지 않아요</div>` : ''}</div>`;
     }
 
-    // 1-2. 월별 흐름 — 월말 내 순자산(지금 기준으로 맞춘 값)
+    // 2. 시세가 멈춘 계좌 — 이 숫자를 믿으면 안 되는 곳부터 알린다
+    P.accounts.filter(a => a.stale).forEach(a => {
+      out += `<div class="warn"><b>${esc(a.stale.firm)} 시세가 ${md(a.stale.since)}부터 그대로예요</b>
+        <span>뱅크샐러드가 새 시세를 못 받아 와서 이 계좌 숫자는 실제와 달라요. 뱅크샐러드에서 ${esc(a.stale.firm)} 연결을 새로고침한 뒤 다시 보내 주세요.</span></div>`;
+    });
+
+    // 3. 카드값 · 월급 — 곧 빠져나갈 돈
+    if (C){
+      const rows = [...C.unpaid.map(b => ({d:b.date, n:b.card, a:b.amount})),
+                    ...(C.pending || []).map(p => ({d:p.expected || '', n:`${p.card} · ${p.label}`, a:p.amount, guess:!!p.expected}))]
+                   .sort((x, y) => (x.d || '9') < (y.d || '9') ? -1 : 1);
+      out += `<div class="pf-h">곧 나갈 돈</div>`;
+      if (rows.length) out += `<div class="box"><div class="hd2"><b>카드 결제 예정</b><span class="num">${m(C.unpaid_total)}만원</span></div>
+        <div class="mlist">${rows.map(r => `<div class="mr"><span class="dt">${r.d ? md(r.d) + (r.guess ? ' 예상' : '') : '미정'}</span><span>${esc(r.n)}</span><span class="a num">${m(r.a)}만</span></div>`).join('')}</div>
+        <div class="note">${md(C.as_of)} 카드 화면 기준 · 이후에 쓴 돈은 아직 안 들어가 있어요</div></div>`;
+      const pd = C.payday;
+      if (pd){
+        const next = new Date(pd.date); next.setMonth(next.getMonth() + 1); const nx = next.toISOString().slice(0,10);
+        const outs = [...pd.outflows.map(o => ({n:o.label, a:o.amount})),
+                      ...C.unpaid.filter(b => b.date >= pd.date && b.date < nx).map(b => ({n:`${b.card} (${md(b.date)})`, a:b.amount}))];
+        let left = pd.net_estimate;
+        out += `<div class="box"><div class="hd2"><b>${md(pd.date)} 월급으로</b><span class="num">실수령 예상 ${m(pd.net_estimate)}만</span></div>
+          <div class="mlist">${outs.map(o => { left -= o.a; return `<div class="mr"><span class="dt num">−${m(o.a)}만</span><span>${esc(o.n)}</span><span class="p num">${m(left)}만</span></div>`; }).join('')}</div>
+          <div class="realrow num"><span>다음 월급 전까지 쓸 돈</span><b class="${left < 0 ? 'down' : ''}">${left < 0 ? '−' : ''}${m(Math.abs(left))}만원</b></div>
+          ${(C.pending || []).length ? `<div class="note">${C.pending.map(p => `${esc(p.card)} ${m(p.amount)}만은 ${p.expected ? md(p.expected) + ' 예상이라' : '결제일 미정이라'} 다음 월급에서 내요.`).join(' ')}</div>` : ''}
+          <div class="note">월급은 추정치예요 · ${esc(pd.basis)}</div></div>`;
+      }
+    }
+
+    // 4. 월별 흐름 — 월말 내 순자산(지금 기준으로 맞춘 값)
     const MS = (A && A.monthly) || [];
     if (MS.length > 1){
       const W = 340, Ht = 170, L = 8, R = 8, T = 26, B = 30;
@@ -467,18 +510,23 @@ details.more2 summary::-webkit-details-marker{display:none}
         <path d="${path}" class="mp"/>
         ${MS.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.mine)}" r="${i === lastI ? 4.5 : 3}" class="${i === lastI ? 'mdl' : 'md'}"/>`).join('')}
         ${lab(0, false)}${peak !== 0 && peak !== lastI ? lab(peak, true) : ''}${lab(lastI, false)}
-        ${MS.map((p, i) => `<text x="${x(i)}" y="${Ht - 8}" text-anchor="${i === 0 ? 'start' : i === lastI ? 'end' : 'middle'}" class="mx">${p.month === '2025-12' ? '12/31' : +p.month.slice(5) + '월'}</text>`).join('')}
+        ${MS.map((p, i) => i < lastI && x(lastI) - x(i) < 30 ? '' : `<text x="${x(i)}" y="${Ht - 8}" text-anchor="${i === 0 ? 'start' : i === lastI ? 'end' : 'middle'}" class="mx">${p.month === '2025-12' ? '12/31' : +p.month.slice(5) + '월'}</text>`).join('')}
         </svg>
         <div class="mlist">${MS.slice().reverse().map((p, i, a) => { const prev = a[i + 1]; const d = prev ? p.mine - prev.mine : null;
           return `<div class="mr"><span class="dt">${p.month === '2025-12' ? '12/31 출발' : p.date.slice(5).replace('-', '/')}${p.approx ? ' *' : ''}</span><span class="a num">${eok(p.mine)}</span><span class="p num ${d == null ? '' : d >= 0 ? 'up' : 'down'}">${d == null ? '' : (d >= 0 ? '+' : '−') + m(Math.abs(d)) + '만'}</span></div>${p.partner ? `<div class="pnote num sub">└ 남자친구 돈 ${m(p.partner)}만 · 합치면 ${eok(p.mine + p.partner)}</div>` : ''}`; }).join('')}</div>
         <div class="note">* 옛 기록은 기준이 달라 보정한 값이에요(맡은 돈은 입금 원금으로, 보험은 낸 회차만큼). 카드 미결제액은 빼지 않았어요. 남자친구 돈은 돌려줄 돈이라 그래프·목표엔 넣지 않고 줄마다 따로 적어요(10/12 이전은 원금).</div></div>`;
     }
 
-    // 2. 내 돈은 어디에
-    const tot = P.total;
-    out += `<div class="pf-h">내 돈은 어디에 있나</div><div class="pf-s">전체 ${eok(tot)}을 종류별로 나눈 막대예요.</div>
-      <div class="box"><div class="mixbar">${P.mix.map(x => `<span style="flex:${x.amount};background:${MIXC[x.kind]}"></span>`).join('')}</div>
-      <div class="lg">${P.mix.map(x => `<div class="r${x.kind === 'partner' ? ' partner' : ''}"><i style="background:${MIXC[x.kind]}"></i><span>${esc(x.label)}</span><span class="a num">${m(x.amount)}만</span><span class="p num">${(x.amount/tot*100).toFixed(0)}%</span></div>`).join('')}</div></div>`;
+
+    // 5. 계좌별 — 어디서 벌고 잃었나
+    const amx = Math.max(...P.accounts.map(a => a.stock + a.cash), 1);
+    out += `<div class="pf-h">계좌별 손익</div><div class="pf-s">진한 막대 = 주식·펀드 · 연한 막대 = 계좌 안 현금 · 오른쪽 = 넣은 돈 대비</div>
+      <div class="box"><div class="hb">${P.accounts.map(a => { const r = a.principal ? a.pnl / a.principal * 100 : 0; return `<div class="row"><div class="t"><span><b>${esc(a.label)}</b><small>${esc(a.firm)}${a.id === 'partner_funded' ? ' · 남자친구 돈 포함' : ''}${a.stale ? ' · ⚠ 시세 멈춤' : ''}</small></span><span class="num">${m(a.stock + a.cash)}만</span></div>
+        <div class="bar" style="width:${(a.stock + a.cash)/amx*100}%"><span style="flex:${a.stock};background:#4C72B0"></span><span style="flex:${a.cash};background:#A6CEE3"></span></div>
+        <div class="t" style="margin-top:5px"><small style="margin:0">${esc(ROLE[a.id] || a.role)}</small>${a.principal ? `<span class="pill num ${a.pnl >= 0 ? 'up' : 'down'}">${a.pnl >= 0 ? '+' : '−'}${m(Math.abs(a.pnl))}만 · ${r >= 0 ? '+' : '−'}${Math.abs(r).toFixed(1)}%</span>` : ''}</div></div>`; }).join('')}</div>
+      <details class="more2 in"><summary>예금·보험·IRP까지 종류별로 보기 ›</summary>
+        <div class="mixbar" style="margin-top:10px">${P.mix.map(x => `<span style="flex:${x.amount};background:${MIXC[x.kind]}"></span>`).join('')}</div>
+        <div class="lg">${P.mix.map(x => `<div class="r${x.kind === 'partner' ? ' partner' : ''}"><i style="background:${MIXC[x.kind]}"></i><span>${esc(x.label)}</span><span class="a num">${m(x.amount)}만</span><span class="p num">${(x.amount/P.total*100).toFixed(0)}%</span></div>`).join('')}</div></details></div>`;
 
     // 3. 확인할 것 — 사실 · 뜻 · 고를 수 있는 것 (어느 걸 고르라고 하지 않는다)
     const ins = [];
@@ -511,9 +559,12 @@ details.more2 summary::-webkit-details-marker{display:none}
       ins.map(x => `<div class="box ins" style="--c:${x.c}"><div class="q">${esc(x.q)}</div><div class="m">${esc(x.m)}</div>
         ${x.o.length ? `<div class="ol">고를 수 있는 것</div><div class="opt">${x.o.map(o => `<span>${esc(o)}</span>`).join('')}</div>` : ''}</div>`).join('');
 
+
+    // 7. 접어 둔 것 — 필요할 때만
+    let fold = '';
     // 4. 주제별 쏠림
     const ths = D.themes.slice(0, 8);
-    out += `<div class="pf-h">어떤 주제에 투자하고 있나</div><div class="pf-s">막대를 누르면 쉬운 설명이 나와요. 한 종목이 두 주제에 걸리기도 해요.</div>
+    fold += `<div class="pf-h">어떤 주제에 투자하고 있나</div><div class="pf-s">막대를 누르면 쉬운 설명이 나와요. 한 종목이 두 주제에 걸리기도 해요.</div>
       <div class="box"><div class="hb">${ths.map(t => `<div class="row th${S.openTheme === t.name ? ' open' : ''}" onclick="openTheme('${esc(t.name)}')">
         <div class="t"><b>${esc(t.name)}</b><span class="num">${Math.round(t.pct)}%</span></div>
         <div class="bar"><span style="width:${Math.min(100,t.pct)}%;background:${tc(t.name)}"></span></div>
@@ -521,20 +572,14 @@ details.more2 summary::-webkit-details-marker{display:none}
 
     // 5. 많이 가진 종목 10
     const mx = Math.max(...H.top.map(g => g.value), 1);
-    out += `<div class="pf-h">많이 가진 종목 10개</div><div class="pf-s">막대 길이 = 지금 금액 · 오른쪽 = 넣은 돈 대비 수익률(빨강 오름 · 파랑 내림). 나머지 ${H.rest.count}개 합계 ${m(H.rest.value)}만원.</div>
+    fold += `<div class="pf-h">많이 가진 종목 10개</div><div class="pf-s">막대 길이 = 지금 금액 · 오른쪽 = 넣은 돈 대비 수익률(빨강 오름 · 파랑 내림). 나머지 ${H.rest.count}개 합계 ${m(H.rest.value)}만원.</div>
       <div class="box"><div class="hb">${H.top.map(g => `<div class="row"><div class="t"><span><b>${esc(g.name)}</b>${g.etf ? '<span class="etf">ETF</span>' : ''}<small>${esc(g.firms.join('·'))}</small></span>
         <span class="pill num ${g.ret >= 0 ? 'up' : 'down'}">${g.ret >= 0 ? '+' : ''}${g.ret}%</span></div>
         <div class="bar"><span style="width:${g.value/mx*100}%;background:#4C72B0"></span></div>
         <div class="t" style="margin-top:4px"><small style="margin:0">${m(g.value)}만원</small><small>넣은 돈 ${m(g.principal)}만</small></div></div>`).join('')}</div></div>`;
 
-    // 6. 계좌별
-    const amx = Math.max(...P.accounts.map(a => a.stock + a.cash), 1);
-    out += `<div class="pf-h">계좌별로 보면</div><div class="pf-s">진한 색 = 주식·펀드 · 연한 색 = 바로 쓸 수 있는 현금</div>
-      <div class="box"><div class="hb">${P.accounts.map(a => `<div class="row"><div class="t"><span><b>${esc(a.label)}</b><small>${esc(a.firm)}</small></span><span class="num">${m(a.stock + a.cash)}만</span></div>
-        <div class="bar" style="width:${(a.stock + a.cash)/amx*100}%"><span style="flex:${a.stock};background:#4C72B0"></span><span style="flex:${a.cash};background:#A6CEE3"></span></div>
-        <div class="desc" style="display:block;font-size:13px;color:var(--sub);margin-top:5px">${esc(ROLE[a.id] || a.role)} · 현금 ${m(a.cash)}만</div></div>`).join('')}</div></div>`;
-
-    out += `<details class="more2"><summary>자세히 — 이번 달 시드 체크 · 이벤트 판단 · 규칙 점검 ›</summary>${checks()}</details>`;
+    out += `<details class="more2"><summary>주제별 쏠림 · 많이 가진 종목 10개 ›</summary>${fold}</details>`;
+    out += `<details class="more2"><summary>이번 달 시드 체크 · 이벤트 판단 · 규칙 점검 ›</summary>${checks()}</details>`;
     return out;
   }
 
