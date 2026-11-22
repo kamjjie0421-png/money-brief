@@ -69,6 +69,8 @@ header.scrolled{border-bottom-color:var(--line)}
 .mchart .mg{stroke:var(--mute);stroke-width:1;stroke-dasharray:4 4}
 .mchart .mgl,.mchart .mx{font-size:11px;fill:var(--mute)}
 .mchart .ml{font-size:12.5px;font-weight:700;fill:var(--ink)}
+.pnote{font-size:12px;color:var(--mute);margin-top:8px;line-height:1.5}
+.pnote.sub{margin:-2px 0 6px 2px;font-size:11.5px}
 .hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:14px 0 0;box-shadow:var(--shadow)}
 .hero .k{font-size:12.5px;color:var(--sub);display:flex;justify-content:space-between}
 .hero .big{font-size:30px;font-weight:800;letter-spacing:-.04em;margin:2px 0 10px}
@@ -436,7 +438,8 @@ details.more2 summary::-webkit-details-marker{display:none}
       out += `<div class="hero"><div class="k"><span>내 순자산 · 남자친구 맡은 돈 제외</span><span class="num">전체 ${won(A.total)}억</span></div>
         <div class="big num">${won(A.mine)}<small>억</small></div>
         ${A.goal ? `<div class="track"><b style="width:${pct.toFixed(1)}%"></b></div>
-        <div class="meta num"><span>${esc(A.goal_label)} <strong>${pct.toFixed(1)}%</strong></span><span>남은 ${m(A.goal - A.mine)}만원</span></div>` : ''}</div>`;
+        <div class="meta num"><span>${esc(A.goal_label)} <strong>${pct.toFixed(1)}%</strong></span><span>남은 ${m(A.goal - A.mine)}만원</span></div>` : ''}
+        ${A.partner ? `<div class="pnote num">남자친구 돈 ${m(A.partner)}만${A.partner_principal ? ` (넣은 원금 ${m(A.partner_principal)}만 · ${A.partner - A.partner_principal >= 0 ? '+' : '−'}${m(Math.abs(A.partner - A.partner_principal))}만)` : ''} · 합치면 ${eok(A.mine + A.partner)} — 목표엔 넣지 않아요</div>` : ''}</div>`;
     }
 
     // 1-2. 월별 흐름 — 월말 내 순자산(지금 기준으로 맞춘 값)
@@ -459,8 +462,8 @@ details.more2 summary::-webkit-details-marker{display:none}
         ${MS.map((p, i) => `<text x="${x(i)}" y="${Ht - 8}" text-anchor="middle" class="mx">${p.month === '2025-12' ? '12/31' : +p.month.slice(5) + '월'}</text>`).join('')}
         </svg>
         <div class="lg">${MS.slice().reverse().map((p, i, a) => { const prev = a[i + 1]; const d = prev ? p.mine - prev.mine : null;
-          return `<div class="r"><span>${p.month === '2025-12' ? '2025-12-31 출발' : p.date.slice(5).replace('-', '/')}${p.approx ? ' *' : ''}</span><span class="a num">${eok(p.mine)}</span><span class="p num ${d == null ? '' : d >= 0 ? 'up' : 'down'}">${d == null ? '' : (d >= 0 ? '+' : '−') + m(Math.abs(d)) + '만'}</span></div>`; }).join('')}</div>
-        <div class="note">* 옛 기록은 기준이 달라 보정한 값이에요(맡은 돈은 입금 원금으로, 보험은 낸 회차만큼). 카드 미결제액은 빼지 않았어요.</div></div>`;
+          return `<div class="r"><span>${p.month === '2025-12' ? '2025-12-31 출발' : p.date.slice(5).replace('-', '/')}${p.approx ? ' *' : ''}</span><span class="a num">${eok(p.mine)}</span><span class="p num ${d == null ? '' : d >= 0 ? 'up' : 'down'}">${d == null ? '' : (d >= 0 ? '+' : '−') + m(Math.abs(d)) + '만'}</span></div>${p.partner ? `<div class="pnote num sub">└ 남자친구 돈 ${m(p.partner)}만 · 합치면 ${eok(p.mine + p.partner)}</div>` : ''}`; }).join('')}</div>
+        <div class="note">* 옛 기록은 기준이 달라 보정한 값이에요(맡은 돈은 입금 원금으로, 보험은 낸 회차만큼). 카드 미결제액은 빼지 않았어요. 남자친구 돈은 돌려줄 돈이라 그래프·목표엔 넣지 않고 줄마다 따로 적어요(10/12 이전은 원금).</div></div>`;
     }
 
     // 2. 내 돈은 어디에
