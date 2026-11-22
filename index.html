@@ -62,6 +62,13 @@ header.scrolled{border-bottom-color:var(--line)}
 .up{color:var(--up)} .down{color:var(--down)}
 .note{font-size:11.5px;color:var(--mute);margin:6px 2px 0}
 
+.mchart{width:100%;height:auto;display:block;margin-bottom:8px}
+.mchart .mp{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.mchart .md{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.mchart .mdl{fill:var(--accent)}
+.mchart .mg{stroke:var(--mute);stroke-width:1;stroke-dasharray:4 4}
+.mchart .mgl,.mchart .mx{font-size:11px;fill:var(--mute)}
+.mchart .ml{font-size:12.5px;font-weight:700;fill:var(--ink)}
 .hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:14px 0 0;box-shadow:var(--shadow)}
 .hero .k{font-size:12.5px;color:var(--sub);display:flex;justify-content:space-between}
 .hero .big{font-size:30px;font-weight:800;letter-spacing:-.04em;margin:2px 0 10px}
@@ -430,6 +437,30 @@ details.more2 summary::-webkit-details-marker{display:none}
         <div class="big num">${won(A.mine)}<small>억</small></div>
         ${A.goal ? `<div class="track"><b style="width:${pct.toFixed(1)}%"></b></div>
         <div class="meta num"><span>${esc(A.goal_label)} <strong>${pct.toFixed(1)}%</strong></span><span>남은 ${m(A.goal - A.mine)}만원</span></div>` : ''}</div>`;
+    }
+
+    // 1-2. 월별 흐름 — 월말 내 순자산(지금 기준으로 맞춘 값)
+    const MS = (A && A.monthly) || [];
+    if (MS.length > 1){
+      const W = 340, Ht = 170, L = 8, R = 8, T = 26, B = 30;
+      const vals = MS.map(x => x.mine), goal = A.goal || 0;
+      const lo = Math.min(...vals) * 0.97, hi = Math.max(...vals, goal) * 1.01;
+      const x = i => L + i * (W - L - R) / (MS.length - 1);
+      const y = v => T + (hi - v) / (hi - lo) * (Ht - T - B);
+      const peak = vals.indexOf(Math.max(...vals)), lastI = MS.length - 1;
+      const path = MS.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.mine).toFixed(1)}`).join('');
+      const lab = (i, up) => `<text x="${x(i)}" y="${y(vals[i]) + (up ? -9 : 17)}" text-anchor="${i === 0 ? 'start' : i === lastI ? 'end' : 'middle'}" class="ml">${won(vals[i])}억</text>`;
+      out += `<div class="pf-h">월별 흐름</div><div class="pf-s">매달 마지막 기록의 내 순자산이에요. 1~3월은 기록이 없어 비어 있어요.</div>
+        <div class="box"><svg viewBox="0 0 ${W} ${Ht}" class="mchart" role="img" aria-label="월별 내 순자산">
+        ${goal ? `<line x1="${L}" x2="${W - R}" y1="${y(goal)}" y2="${y(goal)}" class="mg"/><text x="${W - R}" y="${y(goal) - 5}" text-anchor="end" class="mgl">목표 ${won(goal)}억</text>` : ''}
+        <path d="${path}" class="mp"/>
+        ${MS.map((p, i) => `<circle cx="${x(i)}" cy="${y(p.mine)}" r="${i === lastI ? 4.5 : 3}" class="${i === lastI ? 'mdl' : 'md'}"/>`).join('')}
+        ${lab(0, false)}${peak !== 0 && peak !== lastI ? lab(peak, true) : ''}${lab(lastI, false)}
+        ${MS.map((p, i) => `<text x="${x(i)}" y="${Ht - 8}" text-anchor="middle" class="mx">${p.month === '2025-12' ? '12/31' : +p.month.slice(5) + '월'}</text>`).join('')}
+        </svg>
+        <div class="lg">${MS.slice().reverse().map((p, i, a) => { const prev = a[i + 1]; const d = prev ? p.mine - prev.mine : null;
+          return `<div class="r"><span>${p.month === '2025-12' ? '2025-12-31 출발' : p.date.slice(5).replace('-', '/')}${p.approx ? ' *' : ''}</span><span class="a num">${eok(p.mine)}</span><span class="p num ${d == null ? '' : d >= 0 ? 'up' : 'down'}">${d == null ? '' : (d >= 0 ? '+' : '−') + m(Math.abs(d)) + '만'}</span></div>`; }).join('')}</div>
+        <div class="note">* 옛 기록은 기준이 달라 보정한 값이에요(맡은 돈은 입금 원금으로, 보험은 낸 회차만큼). 카드 미결제액은 빼지 않았어요.</div></div>`;
     }
 
     // 2. 내 돈은 어디에
